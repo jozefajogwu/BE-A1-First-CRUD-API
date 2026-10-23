@@ -4,6 +4,9 @@ const express = require('express');
 // Create an Express application
 const app = express();
 
+// allow express to parse JSON in request bodies
+app.use(express.json());
+
 // The port our server will run on
 const port = 3000;
 
@@ -77,7 +80,38 @@ app.get('/tasks/:id', (req, res) => {
   res.json(task);
 });
 
+// ----------------------------------------------------
+// POST /tasks
+// Creates a new task from the JSON request body.
+// ----------------------------------------------------
+app.post('/tasks', (req, res) => {
 
+  // Get the title sent by the client
+  const { title } = req.body;
+
+  // Check that a title was provided and is not empty
+  if (!title || title.trim() === '') {
+    return res.status(400).json({
+      error: 'Title is required'
+    });
+  }
+
+  // Find the next available task ID
+  const nextId = Math.max(...tasks.map((task) => task.id)) + 1;
+
+  // Create the new task
+  const newTask = {
+    id: nextId,
+    title: title.trim(),
+    done: false
+  };
+
+  // Add the new task to the in-memory list
+  tasks.push(newTask);
+
+  // Return the new task with status 201 Created
+  res.status(201).json(newTask);
+});
 // ----------------------------------------------------
 // Start the server
 // ----------------------------------------------------
