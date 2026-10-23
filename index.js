@@ -115,6 +115,88 @@ app.post('/tasks', (req, res) => {
 // ----------------------------------------------------
 // Start the server
 // ----------------------------------------------------
+
+// ----------------------------------------------------
+// PUT /tasks/:id
+// Updates an existing task.
+// ----------------------------------------------------
+app.put('/tasks/:id', (req, res) => {
+
+  // Convert the ID from the URL into a number
+  const id = Number(req.params.id);
+
+  // Find the task with the matching ID
+  const task = tasks.find((task) => task.id === id);
+
+  // Return 404 if the task does not exist
+  if (!task) {
+    return res.status(404).json({
+      error: `Task ${id} not found`
+    });
+  }
+
+  // Get the possible updates from the request body
+  const { title, done } = req.body;
+
+  // Reject an empty request body
+  if (title === undefined && done === undefined) {
+    return res.status(400).json({
+      error: 'Provide a title or done value'
+    });
+  }
+
+  // If title was provided, validate and update it
+  if (title !== undefined) {
+    if (typeof title !== 'string' || title.trim() === '') {
+      return res.status(400).json({
+        error: 'Title must be a non-empty string'
+      });
+    }
+
+    task.title = title.trim();
+  }
+
+  // If done was provided, validate and update it
+  if (done !== undefined) {
+    if (typeof done !== 'boolean') {
+      return res.status(400).json({
+        error: 'Done must be true or false'
+      });
+    }
+
+    task.done = done;
+  }
+
+  // Return the updated task
+  res.json(task);
+});
+
+// ----------------------------------------------------
+// DELETE /tasks/:id
+// Removes an existing task.
+// ----------------------------------------------------
+app.delete('/tasks/:id', (req, res) => {
+
+  // Convert the ID from the URL into a number
+  const id = Number(req.params.id);
+
+  // Find the position of the task in the array
+  const taskIndex = tasks.findIndex((task) => task.id === id);
+
+  // If the task does not exist, return 404
+  if (taskIndex === -1) {
+    return res.status(404).json({
+      error: `Task ${id} not found`
+    });
+  }
+
+  // Remove exactly one task from the array
+  tasks.splice(taskIndex, 1);
+
+  // 204 means success, with no response body
+  res.status(204).send();
+});
+
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
