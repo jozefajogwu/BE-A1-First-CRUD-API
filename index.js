@@ -1,11 +1,22 @@
 // Import the Express framework
 const express = require('express');
 
+// Import Swagger UI so we can display interactive API documentation
+const swaggerUi = require('swagger-ui-express');
+
+
+// Import the OpenAPI description
+const openApiDocument = require('./openapi.json');
+
 // Create an Express application
 const app = express();
 
 // allow express to parse JSON in request bodies
 app.use(express.json());
+
+
+// Serve Swagger UI at /docs
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(openApiDocument));
 
 // The port our server will run on
 const port = 3000;
